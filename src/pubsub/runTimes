@@ -1,0 +1,42 @@
+#!/bin/sh
+
+if test $# -eq 0 
+then 
+  echo "run with commend \"./runTime time\""
+  exit 0
+fi
+
+time=$1
+
+echo -e "will run simulation $1 times"
+
+#get log dir
+cd ~/ns3.19
+configFile=./src/pubsub/pubsub.config
+fileDir=$(awk '$2=="outfile" {print $3}' $configFile)
+fileName=$(echo $fileDir|awk -F"[/]" '{print $NF}')
+dir=$(echo $fileDir|awk -F"[/]" '{OFS="/";$NF="";print}')
+
+
+for((i=1;i<=$time;i++))
+do
+    #change global seed
+    echo "seed now is:$i" 
+    
+    #create different folder for each seed if not exist
+
+    changedDir=${dir}seed$i
+    if [ ! -x $changedDir ]
+    then     
+        mkdir -p "$changedDir"
+    fi
+    
+    changedFileDir=${changedDir}/${fileName}
+    sed -i "s@${fileDir}@${changedFileDir}@" $configFile
+    ./waf  --run "scratch/pubsub --RngRun=$i" |tee -a ${changedDir}/info
+    #change origin file back
+    sed -i "s@${changedFileDir}@${fileDir}@" $configFile
+
+done
+
+

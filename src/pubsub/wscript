@@ -1,0 +1,42 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+# def options(opt):
+#     pass
+
+# def configure(conf):
+#     conf.check_nonfatal(header_name='stdint.h', define_name='HAVE_STDINT_H')
+
+def build(bld):
+    module = bld.create_ns3_module('pubsub', ['internet','core'])
+    module.source = [
+        'model/persistence-manager.cc',
+        'model/message-header.cc',
+        'model/pubApp.cc',
+        'model/hubApp.cc',
+        'model/subApp.cc',
+        'model/pubsub-core.cc',
+        'helper/pubsub-helper.cc',
+        ]
+
+    module_test = bld.create_ns3_module_test_library('pubsub')
+    module_test.source = [
+        
+        ]
+
+    headers = bld(features='ns3header')
+    headers.module = 'pubsub'
+    headers.source = [
+        'model/persistence-manager.h',
+        'model/message-header.h',
+        'model/pubApp.h',
+        'model/hubApp.h',
+        'model/subApp.h',
+        'model/pubsub-core.h',
+        'helper/pubsub-helper.h',
+        ]
+
+    if bld.env.ENABLE_EXAMPLES:
+        bld.recurse('examples')
+
+    # bld.ns3_python_bindings()
+
